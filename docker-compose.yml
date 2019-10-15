@@ -1,0 +1,43 @@
+version: '3.4'
+
+services:
+
+  build:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    image: ${DOCKER_REGISTRY-}build
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./FrontEnd/Dockerfile
+    image: ${DOCKER_REGISTRY-}frontend
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "ASPNETCORE_URLS=http://+:80"
+    ports:
+      - "5001:80"
+    depends_on:
+      - build
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./BackEnd/Dockerfile
+    image: ${DOCKER_REGISTRY-}backend
+    environment:
+      - "ASPNETCORE_ENVIRONMENT=Development"
+      - "ASPNETCORE_URLS=http://+:80"
+    ports:
+      - "5002:80"
+    depends_on:
+      - build
+
+  db:
+    image: postgres
+    environment:
+      - "POSTGRES_USER=postgres"
+      - "POSTGRES_PASSWORD=mypassword"
+    ports:
+      - "5432:5432"
